@@ -5,6 +5,7 @@ export libRmath
 PATH = ""
 LIBPATH = ""
 LIBPATH_env = "PATH"
+LIBPATH_default = ""
 
 # Relative path to `libRmath`
 const libRmath_splitpath = ["bin", "libRmath-julia.dll"]
@@ -24,11 +25,13 @@ const libRmath = "libRmath-julia.dll"
 Open all libraries
 """
 function __init__()
-    global prefix = abspath(joinpath(@__DIR__, ".."))
+    global artifact_dir = abspath(artifact"Rmath")
 
     # Initialize PATH and LIBPATH environment variable listings
     global PATH_list, LIBPATH_list
-    global libRmath_path = abspath(joinpath(artifact"Rmath", libRmath_splitpath...))
+    # We first need to add to LIBPATH_list the libraries provided by Julia
+    append!(LIBPATH_list, [Sys.BINDIR, joinpath(Sys.BINDIR, Base.LIBDIR, "julia"), joinpath(Sys.BINDIR, Base.LIBDIR)])
+    global libRmath_path = normpath(joinpath(artifact_dir, libRmath_splitpath...))
 
     # Manually `dlopen()` this right now so that future invocations
     # of `ccall` with its `SONAME` will find this path immediately.
